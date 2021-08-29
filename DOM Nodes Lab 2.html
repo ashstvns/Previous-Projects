@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Monthly Investment Growth</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 1.1em;
+    }
+    #container {
+      width: 600px;
+      margin: auto;
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+      padding: 10px;
+      background-color: #cfe2cf; /* darkseagreen 85% */
+      color: darkslategray;
+    }
+    #container p {
+      margin: 5px 0px;
+    }
+    fieldset {
+      width: 500px;
+      display: flex;
+      flex-flow: column nowrap;
+      padding: 10px;
+      background-color: darkseagreen;
+    }
+    legend {
+      font-weight: bold;
+      font-size: 1em;
+    }
+    label {
+      margin-top: 10px;
+      padding: 1px;
+      font-size: .9em;
+    }
+    input, button {
+      font-size: 1.1em;
+      background-color: #cfe2cf;
+      color: darkslategray;
+    }
+    button {
+      height: 2em;
+      margin: 15px 0px;
+    }
+    button:hover{
+      background-color: darkslategray;
+      color: #cfe2cf;
+    }
+    table {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 1em;
+        margin-top: 20px;
+        border: 1px darkslategray solid;
+        width: 60%;
+        visibility: hidden;
+        text-align: right;
+    }
+    caption {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    th {
+        background-color: darkseagreen;
+    }
+    tr:nth-of-type(even) {
+        background-color: #afcfaf; 
+    }
+    
+  </style>
+</head>
+<body>
+    <div id="container">
+        <h2>Retirement Planning</h2>
+        <p>This calculator is intended to help you plan for retirement by showing how much retirement money you can accumulate through regular saving.</p>
+        <p>As of 2020, you are allowed to save up to $6,000/year ($7,000 if you're over 50) in an IRA (if you have at least that in earned income).</p>
+        <p>The calculator assumes that you start the IRA the first year with the initial contribution and that you add a yearly contribution on the anniversary date.</p>
+        <p>Enter your target growth rate as an annual percentage, but keep in mind that stocks and mutual funds have no guaranteed returns and may lose value.</p>
+        <fieldset>
+          <legend>Enter data for calculation</legend>
+          <label for="initialdeposit">Initial Investment ($)</label> 
+          <input type="number" name="initialdeposit" id="initialdeposit" min="0" step="100" value="6000" onclick = reset()>
+          <label for="contribution">Annual Contribution ($)</label>
+          <input type="number" name="contribution" id="contribution" min="0" max="7000" step="100" value="6000" onclick = reset()>
+          <label class="note">Added on anniversary of initial investment</label>
+          <label for="rate">Target Rate of Return (annual %)</label>
+          <input type="number" name="rate" id="rate" min="0" max="10" step="0.1" value="3.2" onclick = reset()>
+          <label class="note">Use 3.2% for low-risk investments</label>
+          <label class="note">Use 6.7% for medium-risk investments</label>
+          <label class="note">Returns are not guaranteed</label>
+          <label for="years">Length (in years) until Retirement</label>
+          <input type="number" name="years" id="years" min="1" max="80" step="1" value="40" onclick = reset()>
+          <button onclick = "display()">Display Yearly Growth</button>
+        </fieldset>
+    <table id="tbl">
+        <caption>IRA Retirement Growth</caption>
+        <thead>
+            <tr>
+                <th>Year</th>
+                <th>Year-Start</th>
+                <th>Growth</th>
+                <th>Contribution</th>
+                <th>Year-End</th>
+            </tr>
+        </thead>
+        <tbody id="tbdy">           
+        </tbody>
+    </table>
+  </div>
+  
+    <script>
+        "use strict";
+        
+        function display() {
+            // access user input of intial investment, annual contribution, target rate, and lenght of investment
+        var balance = parseFloat(document.getElementById("initialdeposit").value); 
+        var gRate = parseFloat(document.getElementById("rate").value); 
+        var term = parseFloat(document.getElementById("years").value);
+        var annCont = parseFloat(document.getElementById("contribution").value);
+        var tb = document.getElementById("tbdy");
+        tb.innerHTML = "";
+        var growth, year, newBalance;
+            for (year = 1; year <= term; year ++ ) {
+                growth = balance*gRate/100; // calculate growth
+                newBalance = balance+growth+annCont; // calculate current Year End and next Year Start
+                // display table row for current year
+                tb.appendChild(makeTr(year, balance, growth, annCont, newBalance));
+                //update balance for next cycle
+                balance = newBalance;
+           }
+           // make table visible
+        document.getElementById("tbl").style.visibility = "visible";       
+        }
+        function makeTr(year, balance, growth, annCont, newBalance) {
+        // Create a <tr> element node containing the given month, interest, and newBalance.
+            var tblTr = document.createElement("tr");
+            tblTr.appendChild(makeTd(year.toString()));
+            tblTr.appendChild(makeTd(balance.toFixed(2)));
+            tblTr.appendChild(makeTd(growth.toFixed(2)));
+            tblTr.appendChild(makeTd(annCont.toFixed(2)));
+            tblTr.appendChild(makeTd(newBalance.toFixed(2)));
+            return tblTr;
+        }
+        function makeTd(text) {
+            // Create and return a <td> element node containing given text
+            var tblTd = document.createElement("td");
+            var txtNode = document.createTextNode(text);
+            tblTd.appendChild(txtNode);
+            return tblTd;
+        }
+
+        function reset() {
+          document.getElementById("tbl").style.visibility = "hidden";
+      }
+    </script>
+</body>
+</html>

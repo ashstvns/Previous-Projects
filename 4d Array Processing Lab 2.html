@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Jill's Science Project</title>
+  <style>
+     body {
+        font-family: Arial, sans-serif;
+        font-size: 1.4em;
+    }
+    #container {
+        width: 80%;
+        margin: auto;
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        padding: 10px;
+    }
+    fieldset {
+        border: none;
+    }
+    input, button {
+        font-size: 1em;
+        height: 2em;
+        padding: .25em;
+        margin: 5px 5px 10px 0px;
+    }
+    #output {
+        font-family: "Courier New", Courier, monospace;
+    } 
+    </style>
+    <body>
+        <div id="container">
+          <h2>Jill's Science Project</h2>
+          <p>Measure the height of each plant, and enter it into the number box, and click the Enter Height button.</p>
+          <fieldset>
+            <input type="number" name="height" id="height" min="0" max="25" step="0.5" value="15.5">
+            <button onclick="addHeight()">Enter Height</button>
+          </fieldset>
+          <fieldset>
+            <button onclick="showHeights()">Show Heights</button>
+            <button onclick="showMean()">Show Mean</button>
+            <button onclick="showMedian()">Show Median</button>
+          </fieldset>
+          <p id="output"></p>
+        </div>
+    <script>
+        "use strict";
+        // GLOBAL variables
+        var heights;    // array for heights
+        var outputElement = document.getElementById("output");
+        // GLOBAL initializations
+        heights = [];  // best practice - start with empty array
+        
+        // FUNCTIONS
+        function addHeight() {
+            // input height and convert to floating point
+            var height = parseFloat(document.getElementById("height").value);
+            // check for validity 0<=25 (invalid heights >25 are ignored)
+            if (height >=0 && height <=25) {
+                // add to the array
+                heights.push(height); // add to empty array with push
+                // display it
+                outputElement.innerHTML += "Plant " + heights.length + ": " + height + "<br>"; // call last added and entered height
+            }
+            // ease input by selecting input text
+            document.getElementById("height").select();
+        }
+        function showMedian() {
+            // sort heights in ascending order
+            heights.sort(function(a, b){return a - b});
+            var n = heights.length;
+            var median;
+            var pos2;
+            var pos1;
+            if (n%2 === 1) {  // if odd length, find middle position
+                median =  heights[Math.floor(n/2)];  
+            } else {  // else when length is even, take average of two middle positions
+                    pos2 = n/2;
+                    pos1 = pos2 - 1;
+                    median = (heights[pos1] + heights[pos2]) / 2; 
+                 }
+            
+            outputElement.innerHTML += "Median Height: " + median + "<br>";
+                }
+        // calculate sum of heights array
+        function getSum(total, num) {
+            return total + num;
+        }
+        // take sum of heights divided by number of heights for mean
+        function showMean() {
+            var heightSum = heights.reduce(getSum, 0);
+            var mean = (heightSum / heights.length).toFixed(1);
+            outputElement.innerHTML += "Mean Height: " + mean + "<br>";
+                }
+
+        function showHeights() {
+            //clear output area
+            document.getElementById("output").innerHTML = " ";
+            // display list of heights again
+           // document.getELmentById("output").innherHTML += ;
+
+        }
+    </script>
+
+
+      </body>
