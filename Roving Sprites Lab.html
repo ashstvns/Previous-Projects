@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Roving Sprites</title>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    #container {
+      width: 80%;
+      margin:auto;
+      display: flex;
+      flex-flow: column wrap;
+      align-items: center;
+      justify-content: space-evenly;
+    }
+    #gui {
+      width: 100%;
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: space-evenly;
+    }
+    #canvas {              /* canvas is a <div id="canvas"> making it unique */
+      width: 400px;
+      height: 400px;
+      margin: 20px;
+      position: relative;  /* without this the sprite's absolute position is to the viewport */
+      background: silver;
+    }
+    /* CONTROL PANEL */
+    #data {
+      margin: 20px;
+      border: none;
+      width: 200px;
+      padding: 10px;
+      background-color: lightskyblue;
+    }
+    #color {
+      padding: 0px;
+    }
+    legend {
+      font-size: .7em;
+    }
+    label {
+      display: inline-block; /* so width is recognized */
+      width: 70px;           /* so can right align */
+      font-size: .9em;
+      text-align: right;
+      padding-right: 5px;
+      margin: 2px 2px 2px 10px;
+    }
+    input {
+      width: 50px;
+      font-size: .9em;
+      margin: 2px 0px;
+    }
+    input[type=button] {
+      width: 100%;
+      font-size: 1.1em;
+      height: 2em;
+      background-color: darkblue;
+      color: lightskyblue;
+    }
+    input[type=button]:hover {
+      background-color: royalblue;
+      color: lightskyblue;
+    }
+    input[type=button]:hover {
+      background-color: royalblue;
+      color: lightskyblue;
+    }
+    input[type=button]:disabled {
+      background-color: #ccc;
+    }
+    #position, #movement {
+      padding: 5px 0px;
+      margin-bottom: 5px;
+    }
+    #position label, #movement label {
+      width: 68px;
+    } 
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h2>Roving Sprites</h2>
+    <div id="gui">
+      <fieldset id="data">
+        <input type="button" id="add" onclick="addSprite()" value="Add Sprite"><br>
+        <label for="color">Color:</label> 
+        <input type="color" id="color" value="#800080"><br>
+        <label for="diameter">Diameter:</label>
+        <input type="number" id="diameter" min="0" max="100" step="1" value="50"><br>
+        <fieldset id="position">
+          <legend>Position</legend>
+          <label for="xpos">x:</label> 
+          <input type="number" id="xpos" min="0" max="300" step="1" value="0"><br>
+          <label for="ypos">y:</label> 
+          <input type="number" id="ypos" min="0" max="300" step="1" value="0"><br>
+        </fieldset>
+        <fieldset id="movement">
+          <legend>Movement</legend>
+          <label for="xspeed">x Speed:</label>
+          <input type="number" id="xspeed" min="0" max="6" step="1" value="1"><br>
+          <label for="yspeed">y Speed:</label>
+          <input type="number" id="yspeed" min="0" max="6" step="1" value="1"><br>
+        </fieldset>
+        <input type="button" id="animate" disabled onclick="startAnimation()" value="Start Animation">
+        <input type="button" id= "pause" disabled onclick="pauseAnimation()" value="Pause Animation">
+      </fieldset>
+      <div id="canvas">
+      </div>
+    </div>
+  </div>    
+
+  <script>
+    "use strict";
+    // DO NOT CHANGE SPRITE CLASS
+    class Sprite {
+        constructor(xPos, yPos, sColor, size) {
+            // copy parameters to instance variables
+            this.xPos = xPos;
+            this.yPos = yPos;
+            this.sColor = sColor;
+            this.size = size;
+            // create <div class="sprite">
+            this.myElement = document.createElement("div");
+            this.myElement.className = "sprite";
+            // set CSS style properties through DOM
+            // make position relative to its parent, the canvas
+            this.myElement.style.position = "absolute";
+            // make it a circle
+            this.myElement.style.borderRadius = "50%";
+            // color and size
+            this.myElement.style.backgroundColor = this.sColor;
+            this.myElement.style.width = this.size + "px";
+            this.myElement.style.height = this.size + "px";
+            // position in canvas: distance from left/top edges of sprite to left/top
+            // edges of canvas, its parent
+            this.myElement.style.left = this.xPos + "px";
+            this.myElement.style.top = this.yPos + "px";
+            // make it visible
+            this.myElement.style.visibility = "visible";
+        }
+    } // end of Sprite class *DO NOT MAKE CHANGES
+    
+    // Code RovingSprite class
+    class RovingSprite extends Sprite {
+        static parent = document.getElementById("canvas");
+        constructor(xPos, yPos, sColor, size, xSpeed, ySpeed) {
+            super(xPos, yPos, sColor, size);
+            this.xSpeed = xSpeed;
+            this.ySpeed = ySpeed;
+        }
+        // Code RovingSprite move() method
+        move() {
+        // Add sprite's xSpeed onto its xPos
+        this.xPos = this.xPos+this.xSpeed;
+        // Add sprite's ySpeed onto its yPos
+        this.yPos = this.yPos+this.ySpeed;
+        // Determine if sprite is touching either of 4 sides of parent
+        if (this.xPos + this.size >= RovingSprite.parent.offsetWidth || this.xPos <= 0) {
+            // if touching left or right, reverse xSpeed
+            this.xSpeed *= -1;
+        }
+        if (this.yPos + this.size >=  RovingSprite.parent.offsetHeight || this.yPos <= 0) {
+            // if touching top or bottom, reverse ySpeed
+            this.ySpeed *= -1;
+        }
+        // Use updated xPos and yPos to set the CSS left and top properties
+        // of the sprite's myElement
+        this.myElement.style.left = this.xPos + "px";
+        this.myElement.style.top = this.yPos + "px";
+        }
+    }
+    // Global Array
+    var sprites = [];
+    // Add sprite function
+    function addSprite() {
+        //input sprite data
+        var xPos = parseInt(document.getElementById("xpos").value);
+        var yPos = parseInt(document.getElementById("ypos").value);
+        var sColor = document.getElementById("color").value;
+        var size = parseInt(document.getElementById("diameter").value);
+        var xSpeed = parseInt(document.getElementById("xspeed").value);
+        var ySpeed = parseInt(document.getElementById("yspeed").value);
+        // create the sprite object
+        var sprite = new RovingSprite(xPos, yPos, sColor, size, xSpeed, ySpeed);
+        // add the sprite's <div> element to canvas
+        document.getElementById("canvas").appendChild(sprite.myElement);
+        //add sprite to the array
+        sprites.push(sprite);
+        // enable Start Animation button
+        document.getElementById("animate").disabled = false;
+    }
+
+    // Create global variable for timer
+    var timer = null;
+    // Create global function that moves sprites and then asks the system
+    // to refresh the screen so the movement can be seen
+    function frame() {
+        // move the sprite
+        var s;
+        for (s of sprites) {
+            s.move();
+        }
+        //request window to be refreshed
+        timer = window.requestAnimationFrame(frame);
+    }
+    // Create startAnimation() function for Start Animation button
+    function startAnimation() {
+        // make sure animation isn't already running
+        if (timer != null) {
+            window.cancelAnimationFrame(timer);
+        }
+        // request first frame of animation
+        timer = window.requestAnimationFrame(frame);
+        //clicking on Start Animation disables this button and
+        // Add Sprite button, enables Pause Animation button
+        document.getElementById("animate").disabled = true;
+        document.getElementById("add").disabled = true;
+        document.getElementById("pause").disabled = false;
+    }
+    // Create pauseAnimation() function
+    function pauseAnimation() {
+        window.cancelAnimationFrame(timer);
+        // clicking disables the Pause Animation button 
+        document.getElementById("pause").disabled = true;
+        // Clicking enables Add Sprite and Start Animation buttons
+        document.getElementById("add").disabled = false;
+        document.getElementById("animate").disabled = false;
+    }
+    
+    
+    
+
+</script>
+
+</body>
+</html> 
